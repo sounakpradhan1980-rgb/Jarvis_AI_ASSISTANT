@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JARVIS Web Core</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #58a6ff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #micBtn {
+            padding: 16px 32px;
+            font-size: 18px;
+            background: #238636;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        #micBtn.listening {
+            background: #da3633;
+        }
+        #status { font-size: 16px; margin-bottom: 10px; }
+        #output { color: #f0f6fc; font-size: 20px; max-width: 600px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <button id="micBtn" onclick="toggleListening()">Start Listening</button>
+    <div id="status">Status: Idle</div>
+    <div id="output">Click to speak...</div>
+
+    <script>
+        // Replace with your deployed backend URL (e.g., https://your-app.onrender.com)
+        const BACKEND_URL = "http://127.0.0.1:8000";
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+        let isListening = false;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = "en-US";
+
+            recognition.onstart = () => {
+                document.getElementById("status").innerText = "Status: Listening...";
+                document.getElementById("micBtn").innerText = "Listening...";
+                document.getElementById("micBtn").classList.add("listening");
+            };
+
+            recognition.onresult = async (event) => {
+                const text = event.results[0][0].transcript;
+                document.getElementById("output").innerText = "User: " + text;
+                await sendToBackend(text);
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                document.getElementById("status").innerText = "Status: Idle";
+                document.getElementById("micBtn").innerText = "Start Listening";
+                document.getElementById("micBtn").classList.remove("listening");
+            };
+        } else {
+            alert("Web Speech API not supported in this browser. Use Chrome or Edge.");
+        }
+
+        function toggleListening() {
+            if (!recognition) return;
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+                isListening = true;
+            }
+        }
+
+        async function sendToBackend(userText) {
+            document.getElementById("status").innerText = "Status: Processing...";
+            try {
+                const res = await fetch(`${BACKEND_URL}/chat`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: userText })
+                });
+                const data = await res.json();
+                document.getElementById("output").innerText = "JARVIS: " + data.response;
+
+                // Stream audio response
+                const audio = new Audio(`${BACKEND_URL}/tts?text=${encodeURIComponent(data.response)}`);
+                audio.play();
+            } catch (err) {
+                console.error(err);
+                document.getElementById("status").innerText = "Status: Error communicating with server";
+            }
+        }
+    </script>
+</body>
+</html>
