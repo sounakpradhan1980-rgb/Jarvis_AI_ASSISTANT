@@ -6,7 +6,6 @@ import edge_tts
 
 app = FastAPI()
 
-# Allow frontend web apps to connect
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,7 +21,6 @@ class CommandRequest(BaseModel):
 async def chat(request: CommandRequest):
     user_text = request.text.lower()
     
-    # JARVIS command routing
     if any(greet in user_text for greet in ["hello", "hi", "hey"]):
         reply = "Hello sir. All systems are operational."
     elif "who are you" in user_text:
