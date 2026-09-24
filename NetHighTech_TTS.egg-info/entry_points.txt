@@ -1,0 +1,2 @@
+[console_scripts]
+jarvis = NetHighTech_TTS.app:start

@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel
 import edge_tts
+import uvicorn
 
 app = FastAPI()
 
@@ -44,3 +45,12 @@ async def text_to_speech(text: str):
         return Response(content=bytes(audio_data), media_type="audio/mpeg")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+    import uvicorn
+
+def start():
+    """Entry point to launch the assistant server."""
+    uvicorn.run("NetHighTech_TTS.app:app", host="0.0.0.0", port=8000, reload=True)
+
+if __name__ == "__main__":
+    start()

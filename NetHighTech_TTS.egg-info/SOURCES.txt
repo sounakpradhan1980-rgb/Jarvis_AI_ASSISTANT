@@ -1,0 +1,9 @@
+setup.py
+NetHighTech_TTS/__init__.py
+NetHighTech_TTS/app.py
+NetHighTech_TTS.egg-info/PKG-INFO
+NetHighTech_TTS.egg-info/SOURCES.txt
+NetHighTech_TTS.egg-info/dependency_links.txt
+NetHighTech_TTS.egg-info/entry_points.txt
+NetHighTech_TTS.egg-info/requires.txt
+NetHighTech_TTS.egg-info/top_level.txt
